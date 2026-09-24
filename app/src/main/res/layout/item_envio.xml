@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="4dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:gravity="center_vertical">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/lblSeguimientoItem"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="BF-123456"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#3F51B5"/>
+
+            <TextView
+                android:id="@+id/lblClienteEnvioItem"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cliente: Juan Pérez"
+                android:textSize="14sp"
+                android:textColor="#000000"
+                android:layout_marginTop="2dp"/>
+
+            <TextView
+                android:id="@+id/lblInfoPaqueteEnvio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Paquete: Caja - Contenido"
+                android:textSize="13sp"
+                android:textColor="#666666"
+                android:textStyle="italic"
+                android:layout_marginTop="1dp"/>
+
+            <TextView
+                android:id="@+id/lblFechaItem"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Fecha: 15/09/2026"
+                android:textSize="13sp"
+                android:textColor="#666666"/>
+
+            <TextView
+                android:id="@+id/lblEstadoItem"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Estado: En tránsito"
+                android:textSize="14sp"
+                android:textColor="#FF5722"
+                android:textStyle="bold"
+                android:layout_marginTop="4dp"/>
+
+            <TextView
+                android:id="@+id/lblPrecioItem"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Total: $5.000"
+                android:textSize="16sp"
+                android:textColor="#4CAF50"
+                android:textStyle="bold"
+                android:layout_marginTop="4dp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/btnEditarEnvio"
+                android:layout_width="75dp"
+                android:layout_height="40dp"
+                android:text="EDIT"
+                android:textSize="10sp"
+                android:backgroundTint="#4CAF50"
+                android:layout_marginBottom="4dp"/>
+
+            <Button
+                android:id="@+id/btnBorrarEnvio"
+                android:layout_width="75dp"
+                android:layout_height="40dp"
+                android:text="ELIM"
+                android:textSize="10sp"
+                android:backgroundTint="#F44336" />
+        </LinearLayout>
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

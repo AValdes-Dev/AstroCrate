@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "705568131048",
+    "project_id": "boxfly-95dc6",
+    "storage_bucket": "boxfly-95dc6.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:705568131048:android:7a09d86220cd3f2da4465d",
+        "android_client_info": {
+          "package_name": "com.alexander.boxfly"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAT7XmXVjH7IM5QUwEmNJSJKLgO7sJD63o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
