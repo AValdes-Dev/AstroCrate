@@ -1,9 +1,10 @@
 package com.alexander.boxfly.models
 
 data class PaqueteModel(
-    val id: Int,
-    val tipo: String,
-    val contenido: String,
-    val peso: Double,
-    val esFragil: Boolean
+    var id: String = "",
+    val tipo: String = "",
+    val contenido: String = "",
+    val peso: Double = 0.0,
+    val esFragil: Boolean = false,
+    val valorDeclarado: Double = 0.0
 )

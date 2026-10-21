@@ -22,26 +22,10 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
-        android:id="@+id/txtNombreRegistro"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:ems="10"
-        android:hint="Ingrese su nombre"
-        android:inputType="text"
-        android:minHeight="48dp"
-        android:textColor="#FFFFFF"
-        android:textColorHint="#CCCCCC"
-        android:backgroundTint="#FFFFFF"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/lblRegistroUsuario" />
-
-    <EditText
         android:id="@+id/txtCorreoRegistro"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="32dp"
         android:ems="10"
         android:hint="Ingrese su correo"
         android:inputType="textEmailAddress"
@@ -51,7 +35,7 @@
         android:backgroundTint="#FFFFFF"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtNombreRegistro" />
+        app:layout_constraintTop_toBottomOf="@+id/lblRegistroUsuario" />
 
     <EditText
         android:id="@+id/txtClaveRegistro"
@@ -87,7 +71,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:backgroundTint="#C5CAE9"
-        android:text="Volver al Login"
+        android:text="Cancelar"
         android:textColor="#000000"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

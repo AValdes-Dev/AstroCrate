@@ -1,0 +1,33 @@
+// Reglas de SEGURIDAD EN CLOUD FIRESTORE - PROYECTO AstroCrate
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Regla general para todas las colecciones ("clientes", "paquetes", "envios")
+    match /{document=**} {
+      // Permite lectura y escritura únicamente a usuarios autenticados con Firebase Auth
+      allow read, write: if request.auth != null;
+    }
+
+  }
+}
+
+
+// EXPLICACIÓN TÉCNICA DE LAS REGLAS DE SEGURIDAD
+// 1. CONTROL DE ACCESO MEDIANTE AUTENTICACIÓN:
+//    La regla (request.auth != null) exige que cualquier petición de lectura
+//    (get/list) o escritura (create/update/delete) provenga de una sesión
+//    activa verificada por Firebase Authentication.
+//
+// 2. PROTECCIÓN DE DATOS Y COLECCIONES:
+//    Se evita dejar la base de datos de Firestore en modo de prueba público
+//    (allow read, write: if true;), garantizando que usuarios anónimos o
+//    peticiones externas no autorizadas no puedan consultar, alterar ni
+//    eliminar registros de las colecciones "clientes", "paquetes" ni "envios".
+//
+// 3. RESTRICCIONES POR ACCIÓN:
+//    - Consultar (Read): Permitido para cargar listados en la app si el usuario inició sesión.
+//    - Crear (Create): Permitido al guardar formularios validados si el usuario está autenticado.
+//    - Modificar (Update): Permitido al editar registros existentes si el usuario está autenticado.
+//    - Eliminar (Delete): Permitido previa confirmación en la app si el usuario está autenticado.

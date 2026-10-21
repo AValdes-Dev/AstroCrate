@@ -5,55 +5,123 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.alexander.boxfly.models.ClienteModel
 import com.alexander.boxfly.models.DatosGlobales
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.firestore.FirebaseFirestore
 
+// Formulario para crear y editar Clientes en Firestore
 class MantenedorCliente : AppCompatActivity() {
+
+    // Instancia de Firestore para guardar los datos en la nube
+    private val db = FirebaseFirestore.getInstance()
+    // Objeto para Analytics
+    private lateinit var firebaseAnalytics: FirebaseAnalytics
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_mantenedor_cliente)
+
+        firebaseAnalytics = FirebaseAnalytics.getInstance(this)
 
         val txtNombre = findViewById<EditText>(R.id.txtNombreCliente)
         val txtRut = findViewById<EditText>(R.id.txtRutCliente)
         val txtDir = findViewById<EditText>(R.id.txtDireccionCliente)
         val txtTel = findViewById<EditText>(R.id.txtTelefonoCliente)
+        val txtEmail = findViewById<EditText>(R.id.txtEmailCliente)
         val btnGuardar = findViewById<Button>(R.id.btnGuardarCliente)
         val btnCancelar = findViewById<Button>(R.id.btnCancelarCliente)
 
-        // Verificamos si venimos a EDITAR (recibimos la posición)
         val posicion = intent.getIntExtra("POSICION", -1)
 
-        if (posicion != -1) {
-            // Llenamos los campos con los datos actuales
+        if (posicion != -1 && posicion < DatosGlobales.listaClientes.size) {
             val c = DatosGlobales.listaClientes[posicion]
             txtNombre.setText(c.nombre)
             txtRut.setText(c.rut)
             txtDir.setText(c.direccion)
             txtTel.setText(c.telefono)
+            txtEmail.setText(c.email)
             btnGuardar.text = "Actualizar Cambios"
         }
 
         btnGuardar.setOnClickListener {
-            val nom = txtNombre.text.toString()
-            val rut = txtRut.text.toString()
-            val dir = txtDir.text.toString()
-            val tel = txtTel.text.toString()
+            val nom = txtNombre.text.toString().trim()
+            val rut = txtRut.text.toString().trim()
+            val dir = txtDir.text.toString().trim()
+            val tel = txtTel.text.toString().trim()
+            val email = txtEmail.text.toString().trim()
 
             if (nom.isNotEmpty() && rut.isNotEmpty()) {
+                btnGuardar.isEnabled = false
+
                 if (posicion == -1) {
-                    // CREAR NUEVO
-                    val nuevo = ClienteModel(DatosGlobales.listaClientes.size + 1, nom, rut, dir, tel)
-                    DatosGlobales.listaClientes.add(nuevo)
-                    Toast.makeText(this, "Cliente Guardado", Toast.LENGTH_SHORT).show()
+                    // CREAR UN NUEVO REGISTRO EN FIRESTORE
+                    val clienteData = hashMapOf(
+                        "nombre" to nom,
+                        "rut" to rut,
+                        "direccion" to dir,
+                        "telefono" to tel,
+                        "email" to email
+                    )
+
+                    db.collection("clientes").add(clienteData)
+                        .addOnSuccessListener {
+                            Toast.makeText(this, "Cliente Guardado en Firestore", Toast.LENGTH_SHORT).show()
+
+                            val params = Bundle().apply {
+                                putString("tipo_entidad", "cliente")
+                            }
+                            firebaseAnalytics.logEvent("registro_creado", params)
+
+                            finish()
+                        }
+                        .addOnFailureListener { e ->
+                            btnGuardar.isEnabled = true
+                            Toast.makeText(this, "Error al guardar: ${e.message}", Toast.LENGTH_LONG).show()
+                        }
                 } else {
-                    // ACTUALIZAR EXISTENTE
-                    val editado = ClienteModel(DatosGlobales.listaClientes[posicion].id, nom, rut, dir, tel)
-                    DatosGlobales.listaClientes[posicion] = editado
-                    Toast.makeText(this, "Cliente Actualizado", Toast.LENGTH_SHORT).show()
+                    // ACTUALIZAR UN REGISTRO EXISTENTE EN FIRESTORE
+                    val clienteExistente = DatosGlobales.listaClientes[posicion]
+                    val nombreAntiguo = clienteExistente.nombre
+
+                    val clienteData = hashMapOf(
+                        "nombre" to nom,
+                        "rut" to rut,
+                        "direccion" to dir,
+                        "telefono" to tel,
+                        "email" to email
+                    )
+
+                    db.collection("clientes").document(clienteExistente.id).set(clienteData)
+                        .addOnSuccessListener {
+                            // SI EL NOMBRE DEL CLIENTE CAMBIÓ, ACTUALIZAR EN CASCADA LOS ENVÍOS EN FIRESTORE
+                            if (nombreAntiguo != nom) {
+                                db.collection("envios")
+                                    .whereEqualTo("clienteNombre", nombreAntiguo)
+                                    .get()
+                                    .addOnSuccessListener { enviosAfectados ->
+                                        for (doc in enviosAfectados) {
+                                            db.collection("envios").document(doc.id)
+                                                .update("clienteNombre", nom)
+                                        }
+                                    }
+                            }
+
+                            Toast.makeText(this, "Cliente y Envíos vinculados actualizados", Toast.LENGTH_SHORT).show()
+
+                            val params = Bundle().apply {
+                                putString("tipo_entidad", "cliente")
+                            }
+                            firebaseAnalytics.logEvent("registro_actualizado", params)
+
+                            finish()
+                        }
+                        .addOnFailureListener { e ->
+                            btnGuardar.isEnabled = true
+                            Toast.makeText(this, "Error al actualizar: ${e.message}", Toast.LENGTH_LONG).show()
+                        }
                 }
-                finish()
             } else {
-                Toast.makeText(this, "Faltan datos obligatorios", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Nombre y RUT son obligatorios", Toast.LENGTH_SHORT).show()
             }
         }
 

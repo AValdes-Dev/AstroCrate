@@ -55,6 +55,15 @@
                 android:textColor="#3F51B5"
                 android:textStyle="italic"
                 android:layout_marginTop="2dp"/>
+
+            <TextView
+                android:id="@+id/lblEmailItem"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Email: cliente@correo.com"
+                android:textSize="13sp"
+                android:textColor="#666666"
+                android:layout_marginTop="2dp"/>
         </LinearLayout>
 
         <LinearLayout
@@ -64,20 +73,22 @@
 
             <Button
                 android:id="@+id/btnEditarItem"
-                android:layout_width="75dp"
-                android:layout_height="48dp"
+                android:layout_width="85dp"
+                android:layout_height="44dp"
                 android:layout_marginBottom="4dp"
                 android:backgroundTint="#4CAF50"
-                android:text="EDIT"
-                android:textSize="10sp" />
+                android:padding="0dp"
+                android:text="Editar"
+                android:textSize="11sp" />
 
             <Button
                 android:id="@+id/btnBorrarItem"
-                android:layout_width="75dp"
-                android:layout_height="48dp"
+                android:layout_width="85dp"
+                android:layout_height="44dp"
                 android:backgroundTint="#F44336"
-                android:text="ELIM"
-                android:textSize="10sp" />
+                android:padding="0dp"
+                android:text="Borrar"
+                android:textSize="11sp" />
         </LinearLayout>
 
     </LinearLayout>
