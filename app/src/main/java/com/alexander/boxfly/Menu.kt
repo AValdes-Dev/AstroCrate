@@ -44,26 +44,6 @@ class Menu : AppCompatActivity() {
         }
 
 
-        // Error no fatal (captura excepción sin cerrar la app)
-        findViewById<Button>(R.id.btnErrorNoFatal).setOnClickListener {
-            try {
-                crashlytics.setCustomKey("usuario_activo", FirebaseAuth.getInstance().currentUser?.email ?: "Anónimo")
-                crashlytics.log("Prueba de error no fatal desde Menú AstroCrate")
-
-                throw Exception("Error No Fatal de Prueba en BoxFly")
-            } catch (e: Exception) {
-                crashlytics.recordException(e)
-                crashlytics.sendUnsentReports()
-                Toast.makeText(this, "Error no fatal enviado a Crashlytics", Toast.LENGTH_LONG).show()
-            }
-        }
-
-        // Fallo de prueba (cierre intencional)
-        findViewById<Button>(R.id.btnForzarCrash).setOnClickListener {
-            Toast.makeText(this, "Provocando cierre intencional...", Toast.LENGTH_SHORT).show()
-            throw RuntimeException("Fallo de prueba Crashlytics - AstroCrate")
-        }
-
         // Cerrar sesión activa en Firebase Auth y volver al Login
         findViewById<Button>(R.id.btnCerrar).setOnClickListener {
             FirebaseAuth.getInstance().signOut() // Cierra la sesión en Firebase
