@@ -1,3 +1,11 @@
+import java.util.Properties
+
+// URL y token del Google Apps Script (no se suben a git: van en local.properties)
+val propiedadesLocales = Properties().apply {
+    val archivo = rootProject.file("local.properties")
+    if (archivo.exists()) archivo.inputStream().use { load(it) }
+}
+
 plugins {
     alias(libs.plugins.android.application)
     id("com.google.gms.google-services")
@@ -18,6 +26,9 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "APPS_SCRIPT_URL", "\"${propiedadesLocales.getProperty("APPS_SCRIPT_URL", "")}\"")
+        buildConfigField("String", "APPS_SCRIPT_TOKEN", "\"${propiedadesLocales.getProperty("APPS_SCRIPT_TOKEN", "")}\"")
     }
 
     buildTypes {
@@ -26,6 +37,9 @@ android {
                 enable = false
             }
         }
+    }
+    buildFeatures {
+        buildConfig = true
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11

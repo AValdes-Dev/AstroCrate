@@ -35,7 +35,14 @@ class ClienteAdapter(
         val item = lista[position]
         holder.txtNombre.text = item.nombre
         holder.txtRut.text = "RUT: ${item.rut}"
-        holder.txtDireccion.text = "Dir: ${item.direccion}"
+        // Resultado de ValidadorDireccion
+        val estadoDireccion = when (item.addressValidity) {
+            true -> " (validada)"
+            false -> " (no válida)"
+            null -> if (item.direccion.isNotEmpty()) " (sin validar)" else ""
+        }
+        val comuna = if (item.comuna.isNotEmpty()) ", ${item.comuna}" else ""
+        holder.txtDireccion.text = "Dir: ${item.direccion}$comuna$estadoDireccion"
         holder.txtTelefono.text = "Tel: ${item.telefono}"
         holder.txtEmail.text = "Email: ${item.email}"
         

@@ -61,6 +61,19 @@
         app:layout_constraintTop_toBottomOf="@+id/txtRutCliente" />
 
     <EditText
+        android:id="@+id/txtComunaCliente"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="#FFFFFF"
+        android:hint="Comuna / Ciudad"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#CCCCCC"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtDireccionCliente" />
+
+    <EditText
         android:id="@+id/txtTelefonoCliente"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -72,7 +85,7 @@
         android:textColorHint="#CCCCCC"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtDireccionCliente" />
+        app:layout_constraintTop_toBottomOf="@+id/txtComunaCliente" />
 
     <EditText
         android:id="@+id/txtEmailCliente"

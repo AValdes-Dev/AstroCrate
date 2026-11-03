@@ -154,6 +154,9 @@ class MantenedorEnvio : AppCompatActivity() {
                         .addOnSuccessListener {
                             Toast.makeText(this, "Envío Registrado en Firestore", Toast.LENGTH_SHORT).show()
 
+                            // Aviso por correo al cliente (extensión Trigger Email)
+                            NotificadorCorreo.notificarEstadoEnvio(db, cli, seg, paq, est, fec, esNuevo = true)
+
                             // Evento Analytics: registro_creado
                             val params = Bundle().apply {
                                 putString("tipo_entidad", "envio")
@@ -172,6 +175,11 @@ class MantenedorEnvio : AppCompatActivity() {
                     db.collection("envios").document(envioExistente.id).set(envioData)
                         .addOnSuccessListener {
                             Toast.makeText(this, "Envío Actualizado", Toast.LENGTH_SHORT).show()
+
+                            // Avisar por correo solo si cambió el estado
+                            if (envioExistente.estado != est) {
+                                NotificadorCorreo.notificarEstadoEnvio(db, cli, seg, paq, est, fec, esNuevo = false)
+                            }
 
                             // Evento Analytics: registro_actualizado
                             val params = Bundle().apply {

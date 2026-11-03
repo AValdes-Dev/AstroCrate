@@ -26,6 +26,7 @@ class MantenedorCliente : AppCompatActivity() {
         val txtNombre = findViewById<EditText>(R.id.txtNombreCliente)
         val txtRut = findViewById<EditText>(R.id.txtRutCliente)
         val txtDir = findViewById<EditText>(R.id.txtDireccionCliente)
+        val txtComuna = findViewById<EditText>(R.id.txtComunaCliente)
         val txtTel = findViewById<EditText>(R.id.txtTelefonoCliente)
         val txtEmail = findViewById<EditText>(R.id.txtEmailCliente)
         val btnGuardar = findViewById<Button>(R.id.btnGuardarCliente)
@@ -38,6 +39,7 @@ class MantenedorCliente : AppCompatActivity() {
             txtNombre.setText(c.nombre)
             txtRut.setText(c.rut)
             txtDir.setText(c.direccion)
+            txtComuna.setText(c.comuna)
             txtTel.setText(c.telefono)
             txtEmail.setText(c.email)
             btnGuardar.text = "Actualizar Cambios"
@@ -47,6 +49,7 @@ class MantenedorCliente : AppCompatActivity() {
             val nom = txtNombre.text.toString().trim()
             val rut = txtRut.text.toString().trim()
             val dir = txtDir.text.toString().trim()
+            val comuna = txtComuna.text.toString().trim()
             val tel = txtTel.text.toString().trim()
             val email = txtEmail.text.toString().trim()
 
@@ -55,17 +58,14 @@ class MantenedorCliente : AppCompatActivity() {
 
                 if (posicion == -1) {
                     // CREAR UN NUEVO REGISTRO EN FIRESTORE
-                    val clienteData = hashMapOf(
-                        "nombre" to nom,
-                        "rut" to rut,
-                        "direccion" to dir,
-                        "telefono" to tel,
-                        "email" to email
-                    )
+                    val clienteData = armarClienteData(nom, rut, dir, comuna, tel, email)
 
                     db.collection("clientes").add(clienteData)
-                        .addOnSuccessListener {
+                        .addOnSuccessListener { docCliente ->
                             Toast.makeText(this, "Cliente Guardado en Firestore", Toast.LENGTH_SHORT).show()
+
+                            // Validación de dirección en segundo plano (resultado en "addressValidity")
+                            ValidadorDireccion.validarYGuardar(docCliente, dir, comuna)
 
                             val params = Bundle().apply {
                                 putString("tipo_entidad", "cliente")
@@ -83,16 +83,13 @@ class MantenedorCliente : AppCompatActivity() {
                     val clienteExistente = DatosGlobales.listaClientes[posicion]
                     val nombreAntiguo = clienteExistente.nombre
 
-                    val clienteData = hashMapOf(
-                        "nombre" to nom,
-                        "rut" to rut,
-                        "direccion" to dir,
-                        "telefono" to tel,
-                        "email" to email
-                    )
+                    val clienteData = armarClienteData(nom, rut, dir, comuna, tel, email)
 
-                    db.collection("clientes").document(clienteExistente.id).set(clienteData)
+                    val docCliente = db.collection("clientes").document(clienteExistente.id)
+                    docCliente.set(clienteData)
                         .addOnSuccessListener {
+                            ValidadorDireccion.validarYGuardar(docCliente, dir, comuna)
+
                             // SI EL NOMBRE DEL CLIENTE CAMBIÓ, ACTUALIZAR EN CASCADA LOS ENVÍOS EN FIRESTORE
                             if (nombreAntiguo != nom) {
                                 db.collection("envios")
@@ -127,4 +124,15 @@ class MantenedorCliente : AppCompatActivity() {
 
         btnCancelar.setOnClickListener { finish() }
     }
+
+    private fun armarClienteData(
+        nom: String, rut: String, dir: String, comuna: String, tel: String, email: String
+    ) = hashMapOf<String, Any>(
+        "nombre" to nom,
+        "rut" to rut,
+        "direccion" to dir,
+        "comuna" to comuna,
+        "telefono" to tel,
+        "email" to email
+    )
 }

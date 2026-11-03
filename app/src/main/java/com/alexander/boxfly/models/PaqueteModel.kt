@@ -6,5 +6,7 @@ data class PaqueteModel(
     val contenido: String = "",
     val peso: Double = 0.0,
     val esFragil: Boolean = false,
-    val valorDeclarado: Double = 0.0
+    val valorDeclarado: Double = 0.0,
+    // Enlace de la foto en Google Drive (subida vía Apps Script)
+    val fotoDriveUrl: String = ""
 )
