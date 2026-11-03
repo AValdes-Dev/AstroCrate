@@ -64,15 +64,14 @@ class MantenedorCliente : AppCompatActivity() {
                         .addOnSuccessListener { docCliente ->
                             Toast.makeText(this, "Cliente Guardado en Firestore", Toast.LENGTH_SHORT).show()
 
-                            // Validación de dirección en segundo plano (resultado en "addressValidity")
-                            ValidadorDireccion.validarYGuardar(docCliente, dir, comuna)
-
-                            val params = Bundle().apply {
-                                putString("tipo_entidad", "cliente")
+                            // Validación de dirección y luego cerrar la pantalla
+                            ValidadorDireccion.validarYGuardar(docCliente, dir, comuna) {
+                                val params = Bundle().apply {
+                                    putString("tipo_entidad", "cliente")
+                                }
+                                firebaseAnalytics.logEvent("registro_creado", params)
+                                finish()
                             }
-                            firebaseAnalytics.logEvent("registro_creado", params)
-
-                            finish()
                         }
                         .addOnFailureListener { e ->
                             btnGuardar.isEnabled = true
@@ -86,10 +85,8 @@ class MantenedorCliente : AppCompatActivity() {
                     val clienteData = armarClienteData(nom, rut, dir, comuna, tel, email)
 
                     val docCliente = db.collection("clientes").document(clienteExistente.id)
-                    docCliente.set(clienteData)
+                    docCliente.set(clienteData, com.google.firebase.firestore.SetOptions.merge())
                         .addOnSuccessListener {
-                            ValidadorDireccion.validarYGuardar(docCliente, dir, comuna)
-
                             // SI EL NOMBRE DEL CLIENTE CAMBIÓ, ACTUALIZAR EN CASCADA LOS ENVÍOS EN FIRESTORE
                             if (nombreAntiguo != nom) {
                                 db.collection("envios")
@@ -105,12 +102,13 @@ class MantenedorCliente : AppCompatActivity() {
 
                             Toast.makeText(this, "Cliente y Envíos vinculados actualizados", Toast.LENGTH_SHORT).show()
 
-                            val params = Bundle().apply {
-                                putString("tipo_entidad", "cliente")
+                            ValidadorDireccion.validarYGuardar(docCliente, dir, comuna) {
+                                val bundleParams = Bundle().apply {
+                                    putString("tipo_entidad", "cliente")
+                                }
+                                firebaseAnalytics.logEvent("registro_actualizado", bundleParams)
+                                finish()
                             }
-                            firebaseAnalytics.logEvent("registro_actualizado", params)
-
-                            finish()
                         }
                         .addOnFailureListener { e ->
                             btnGuardar.isEnabled = true

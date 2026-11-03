@@ -10,25 +10,37 @@ object ValidadorDireccion {
 
     private const val TAG = "ValidadorDireccion"
 
-    fun validarYGuardar(docCliente: DocumentReference, direccion: String, comuna: String) {
-        if (direccion.isEmpty()) return
+    fun validarYGuardar(
+        docCliente: DocumentReference,
+        direccion: String,
+        comuna: String,
+        onComplete: (() -> Unit)? = null
+    ) {
+        if (direccion.isEmpty()) {
+            onComplete?.invoke()
+            return
+        }
 
         ServicioAppsScript.llamar("validarDireccion", {
             JSONObject().put("direccion", direccion).put("comuna", comuna)
         }) { respuesta, error ->
             if (respuesta == null) {
                 Log.w(TAG, "No se pudo validar la dirección: $error")
+                onComplete?.invoke()
                 return@llamar
             }
 
-            val resultado = mutableMapOf<String, Any>("addressValidity" to respuesta.optBoolean("valida"))
+            val esValida = respuesta.optBoolean("valida", false)
+            val resultado = mutableMapOf<String, Any>("addressValidity" to esValida)
             if (respuesta.has("direccionNormalizada")) {
                 resultado["direccionNormalizada"] = respuesta.optString("direccionNormalizada")
                 resultado["lat"] = respuesta.optDouble("lat")
                 resultado["lng"] = respuesta.optDouble("lng")
             }
             docCliente.update(resultado)
-                .addOnFailureListener { e -> Log.e(TAG, "No se pudo guardar la validación", e) }
+                .addOnCompleteListener {
+                    onComplete?.invoke()
+                }
         }
     }
 }
