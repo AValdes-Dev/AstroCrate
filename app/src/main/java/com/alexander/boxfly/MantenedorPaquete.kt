@@ -8,6 +8,7 @@ import android.util.Base64
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
@@ -34,12 +35,15 @@ class MantenedorPaquete : AppCompatActivity() {
     private var fotoSeleccionada: Uri? = null
     private var fotoUrlActual = ""
     private lateinit var lblFoto: TextView
+    private lateinit var imgPreview: ImageView
 
     // Selector de imágenes del sistema (no requiere permisos de almacenamiento)
     private val seleccionarFoto = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         if (uri != null) {
             fotoSeleccionada = uri
             lblFoto.text = "Foto lista para subir"
+            imgPreview.visibility = android.view.View.VISIBLE
+            imgPreview.setImageURI(uri)
         }
     }
 
@@ -58,6 +62,7 @@ class MantenedorPaquete : AppCompatActivity() {
         val btnCancelar = findViewById<Button>(R.id.btnCancelarPaquete)
         val btnFoto = findViewById<Button>(R.id.btnFotoPaquete)
         lblFoto = findViewById(R.id.lblFotoPaquete)
+        imgPreview = findViewById(R.id.imgPreviewPaquete)
 
         btnFoto.setOnClickListener {
             seleccionarFoto.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
@@ -81,7 +86,15 @@ class MantenedorPaquete : AppCompatActivity() {
             txtValor.setText(p.valorDeclarado.toString())
             swFragil.isChecked = p.esFragil
             fotoUrlActual = p.fotoDriveUrl
-            if (fotoUrlActual.isNotEmpty()) lblFoto.text = "Foto adjunta"
+            if (fotoUrlActual.isNotEmpty()) {
+                lblFoto.text = "Foto adjunta"
+                imgPreview.visibility = android.view.View.VISIBLE
+                val fileId = fotoUrlActual.substringAfter("/d/").substringBefore("/")
+                val urlThumb = if (fotoUrlActual.contains("/d/")) "https://drive.google.com/thumbnail?id=$fileId&sz=w500" else fotoUrlActual
+                com.bumptech.glide.Glide.with(this)
+                    .load(urlThumb)
+                    .into(imgPreview)
+            }
             btnGuardar.text = "Actualizar Paquete"
         }
 

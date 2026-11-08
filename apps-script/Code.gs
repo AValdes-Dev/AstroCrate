@@ -59,7 +59,7 @@ function validarDireccion(datos) {
   var r = respuesta.results[0];
   // partial_match = Google no encontró la dirección exacta, solo algo parecido.
   // Además debe resolver a una dirección con número, no solo a la calle o la comuna.
-  var tiposDireccion = ['street_address', 'premise', 'subpremise'];
+  var tiposDireccion = ['street_address', 'premise', 'subpremise', 'route', 'establishment'];
   var esDireccionExacta = r.types.some(function (t) { return tiposDireccion.indexOf(t) !== -1; });
   var valida = !r.partial_match && esDireccionExacta;
   return {
@@ -71,12 +71,18 @@ function validarDireccion(datos) {
   };
 }
 
-// Export to Drive: guarda la foto del paquete en la carpeta configurada
+// Export to Drive: guarda la foto del paquete en la carpeta configurada y la hace pública por enlace
 function subirFoto(datos, carpetaId) {
   if (!carpetaId) return { ok: false, error: 'Falta DRIVE_FOLDER_ID en las propiedades del script' };
 
   var blob = Utilities.newBlob(Utilities.base64Decode(datos.base64), datos.mimeType || 'image/jpeg', datos.nombre);
   var archivo = DriveApp.getFolderById(carpetaId).createFile(blob);
+
+  // Otorga permiso público por enlace para que la app y el correo puedan mostrar la foto
+  try {
+    archivo.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+  } catch (e) {}
+
   return { ok: true, fileId: archivo.getId(), url: archivo.getUrl() };
 }
 

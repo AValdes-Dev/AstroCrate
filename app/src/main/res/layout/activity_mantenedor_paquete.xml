@@ -103,8 +103,20 @@
         android:text="Sin foto"
         android:textColor="#FFFFFF"
         app:layout_constraintBottom_toBottomOf="@+id/btnFotoPaquete"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/imgPreviewPaquete"
         app:layout_constraintStart_toEndOf="@+id/btnFotoPaquete"
+        app:layout_constraintTop_toTopOf="@+id/btnFotoPaquete" />
+
+    <ImageView
+        android:id="@+id/imgPreviewPaquete"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="8dp"
+        android:scaleType="centerCrop"
+        android:visibility="gone"
+        tools:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="@+id/btnFotoPaquete"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/btnFotoPaquete" />
 
     <Button
