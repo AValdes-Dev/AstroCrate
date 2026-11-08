@@ -6,18 +6,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#3F51B5"
+    android:padding="12dp"
     tools:context=".GestorEnvios">
 
     <TextView
         android:id="@+id/lblGestionEnvios"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="12dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
         android:text="Gestión de Envíos"
         android:textColor="#FFFFFF"
         android:textSize="20sp"
-        app:layout_constraintBottom_toTopOf="@+id/rvEnvios"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -26,9 +27,8 @@
         android:id="@+id/rvEnvios"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginStart="32dp"
-        android:layout_marginEnd="32dp"
-        android:layout_marginBottom="15dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="12dp"
         android:background="#FFFFFF"
         app:layout_constraintBottom_toTopOf="@+id/btnAgregarEnvio"
         app:layout_constraintEnd_toEndOf="parent"
@@ -39,24 +39,22 @@
         android:id="@+id/btnAgregarEnvio"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="199dp"
+        android:layout_marginBottom="8dp"
         android:backgroundTint="#FF5722"
         android:text="Agregar Envío"
-        app:layout_constraintBottom_toTopOf="@+id/btnVolver"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/rvEnvios" />
+        app:layout_constraintStart_toEndOf="@+id/btnVolver" />
 
     <Button
         android:id="@+id/btnVolver"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="13dp"
-        android:layout_marginBottom="25dp"
+        android:layout_marginBottom="8dp"
         android:backgroundTint="#FF5722"
         android:text="Volver al Menú"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnAgregarEnvio" />
+        app:layout_constraintEnd_toStartOf="@+id/btnAgregarEnvio"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
