@@ -59,6 +59,16 @@
                 android:layout_marginTop="2dp"/>
 
             <TextView
+                android:id="@+id/lblValorDeclaradoItem"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Valor: $0 CLP"
+                android:textSize="14sp"
+                android:textColor="#2E7D32"
+                android:textStyle="bold"
+                android:layout_marginTop="2dp"/>
+
+            <TextView
                 android:id="@+id/lblFragilItem"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

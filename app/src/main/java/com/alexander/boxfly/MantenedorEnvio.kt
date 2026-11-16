@@ -20,6 +20,7 @@ import java.util.Locale
 class MantenedorEnvio : AppCompatActivity() {
 
     private val opcionesEstado = arrayOf("En sucursal", "En tránsito", "En ruta de entrega", "Entregado", "Devuelto")
+
     // Instancia de Firestore
     private val db = FirebaseFirestore.getInstance()
     // Objeto para Analytics
@@ -42,6 +43,7 @@ class MantenedorEnvio : AppCompatActivity() {
         val txtFec = findViewById<EditText>(R.id.txtFecha)
         val spnEst = findViewById<Spinner>(R.id.spnEstado)
         val txtPre = findViewById<EditText>(R.id.txtPrecio)
+        val spnMon = findViewById<Spinner>(R.id.spnMonedaEnvio)
         val btnGenerar = findViewById<Button>(R.id.btnGenerarCodigo)
         val btnFinalizar = findViewById<Button>(R.id.btnFinalizarEnvio)
         val btnCancelar = findViewById<Button>(R.id.btnVolverEnvio)
@@ -81,6 +83,10 @@ class MantenedorEnvio : AppCompatActivity() {
         adapterEst.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spnEst.adapter = adapterEst
 
+        val adapterMon = ArrayAdapter(this, R.layout.spinner_item, ConversorMoneda.opcionesMoneda)
+        adapterMon.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spnMon.adapter = adapterMon
+
         val posicion = intent.getIntExtra("POSICION", -1)
 
         // Cargar desde Firestore los clientes y paquetes disponibles para seleccionar
@@ -90,6 +96,9 @@ class MantenedorEnvio : AppCompatActivity() {
                 txtSeg.setText(e.codigoSeguimiento)
                 txtFec.setText(e.fechaEnvio)
                 txtPre.setText(e.precio.toString())
+
+                val idxMon = ConversorMoneda.opcionesMoneda.indexOf(e.moneda)
+                if (idxMon != -1) spnMon.setSelection(idxMon)
 
                 // Buscar el cliente en el Spinner o agregar el guardado previamente
                 val idxCli = nombresClientes.indexOf(e.clienteNombre)
@@ -130,6 +139,7 @@ class MantenedorEnvio : AppCompatActivity() {
             val paq = spnPaq.selectedItem?.toString() ?: ""
             val est = spnEst.selectedItem?.toString() ?: ""
             val pre = txtPre.text.toString().toDoubleOrNull() ?: 0.0
+            val mon = spnMon.selectedItem?.toString() ?: "CLP ($)"
 
             if (nombresClientes.isEmpty() || infoPaquetes.isEmpty()) {
                 Toast.makeText(this, "Debe registrar clientes y paquetes primero", Toast.LENGTH_LONG).show()
@@ -139,61 +149,80 @@ class MantenedorEnvio : AppCompatActivity() {
             if (seg.isNotEmpty() && pre > 0) {
                 btnFinalizar.isEnabled = false
 
-                val envioData = hashMapOf(
-                    "codigoSeguimiento" to seg,
-                    "clienteNombre" to cli,
-                    "paqueteTipo" to paq,
-                    "fechaEnvio" to fec,
-                    "estado" to est,
-                    "precio" to pre
-                )
+                // Consultar las coordenadas geocodificadas del cliente en Firestore
+                db.collection("clientes").whereEqualTo("nombre", cli).limit(1).get()
+                    .addOnCompleteListener { taskCli ->
+                        val docCli = taskCli.result?.documents?.firstOrNull()
+                        val clientLat = docCli?.getDouble("lat") ?: -33.4289
+                        val clientLng = docCli?.getDouble("lng") ?: -70.6208
 
-                if (posicion == -1) {
-                    // CREAR ENVÍO EN FIRESTORE
-                    db.collection("envios").add(envioData)
-                        .addOnSuccessListener {
-                            Toast.makeText(this, "Envío Registrado en Firestore", Toast.LENGTH_SHORT).show()
-
-                            // Aviso por correo al cliente (extensión Trigger Email)
-                            NotificadorCorreo.notificarEstadoEnvio(db, cli, seg, paq, est, fec, esNuevo = true)
-
-                            // Evento Analytics: registro_creado
-                            val params = Bundle().apply {
-                                putString("tipo_entidad", "envio")
-                            }
-                            firebaseAnalytics.logEvent("registro_creado", params)
-
-                            finish()
+                        // Calcular ubicación en Google Maps dinámicamente según el Estado del Envío
+                        val (latFinal, lngFinal) = when (est) {
+                            "En sucursal" -> Pair(-33.4372, -70.6506) // Sucursal Central (Santiago Centro / Ahumada)
+                            "En tránsito", "En ruta de entrega" -> Pair(-33.4255, -70.6120) // En Ruta (Av. Providencia / Pedro de Valdivia)
+                            "Entregado" -> Pair(clientLat, clientLng) // Dirección Exacta del Cliente
+                            else -> Pair(clientLat, clientLng)
                         }
-                        .addOnFailureListener { e ->
-                            btnFinalizar.isEnabled = true
-                            Toast.makeText(this, "Error al guardar: ${e.message}", Toast.LENGTH_LONG).show()
-                        }
-                } else {
-                    // ACTUALIZAR ENVÍO EN FIRESTORE
-                    val envioExistente = DatosGlobales.listaEnvios[posicion]
-                    db.collection("envios").document(envioExistente.id).set(envioData)
-                        .addOnSuccessListener {
-                            Toast.makeText(this, "Envío Actualizado", Toast.LENGTH_SHORT).show()
 
-                            // Avisar por correo solo si cambió el estado
-                            if (envioExistente.estado != est) {
-                                NotificadorCorreo.notificarEstadoEnvio(db, cli, seg, paq, est, fec, esNuevo = false)
-                            }
+                        val envioData = hashMapOf(
+                            "codigoSeguimiento" to seg,
+                            "clienteNombre" to cli,
+                            "paqueteTipo" to paq,
+                            "fechaEnvio" to fec,
+                            "estado" to est,
+                            "precio" to pre,
+                            "moneda" to mon,
+                            "latitud" to latFinal,
+                            "longitud" to lngFinal
+                        )
 
-                            // Evento Analytics: registro_actualizado
-                            val params = Bundle().apply {
-                                putString("tipo_entidad", "envio")
-                            }
-                            firebaseAnalytics.logEvent("registro_actualizado", params)
+                        if (posicion == -1) {
+                            // CREAR ENVÍO EN FIRESTORE
+                            db.collection("envios").add(envioData)
+                                .addOnSuccessListener {
+                                    Toast.makeText(this, "Envío Registrado en Firestore", Toast.LENGTH_SHORT).show()
 
-                            finish()
+                                    // Aviso por correo al cliente con la ubicación en Google Maps
+                                    NotificadorCorreo.notificarEstadoEnvio(db, cli, seg, paq, est, fec, esNuevo = true, latitud = latFinal, longitud = lngFinal)
+
+                                    // Evento Analytics: registro_creado
+                                    val params = Bundle().apply {
+                                        putString("tipo_entidad", "envio")
+                                    }
+                                    firebaseAnalytics.logEvent("registro_creado", params)
+
+                                    finish()
+                                }
+                                .addOnFailureListener { e ->
+                                    btnFinalizar.isEnabled = true
+                                    Toast.makeText(this, "Error al guardar: ${e.message}", Toast.LENGTH_LONG).show()
+                                }
+                        } else {
+                            // ACTUALIZAR ENVÍO EN FIRESTORE
+                            val envioExistente = DatosGlobales.listaEnvios[posicion]
+                            db.collection("envios").document(envioExistente.id).set(envioData)
+                                .addOnSuccessListener {
+                                    Toast.makeText(this, "Envío Actualizado", Toast.LENGTH_SHORT).show()
+
+                                    // Avisar por correo solo si cambió el estado
+                                    if (envioExistente.estado != est) {
+                                        NotificadorCorreo.notificarEstadoEnvio(db, cli, seg, paq, est, fec, esNuevo = false, latitud = latFinal, longitud = lngFinal)
+                                    }
+
+                                    // Evento Analytics: registro_actualizado
+                                    val params = Bundle().apply {
+                                        putString("tipo_entidad", "envio")
+                                    }
+                                    firebaseAnalytics.logEvent("registro_actualizado", params)
+
+                                    finish()
+                                }
+                                .addOnFailureListener { e ->
+                                    btnFinalizar.isEnabled = true
+                                    Toast.makeText(this, "Error al actualizar: ${e.message}", Toast.LENGTH_LONG).show()
+                                }
                         }
-                        .addOnFailureListener { e ->
-                            btnFinalizar.isEnabled = true
-                            Toast.makeText(this, "Error al actualizar: ${e.message}", Toast.LENGTH_LONG).show()
-                        }
-                }
+                    }
             } else {
                 Toast.makeText(this, "Código de seguimiento y precio mayor a 0 son obligatorios", Toast.LENGTH_SHORT).show()
             }

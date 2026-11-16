@@ -7,5 +7,8 @@ data class EnvioModel(
     val paqueteTipo: String = "",
     val fechaEnvio: String = "",
     val estado: String = "",
-    val precio: Double = 0.0
+    val precio: Double = 0.0,
+    val moneda: String = "CLP ($)",
+    val latitud: Double = -33.4372,
+    val longitud: Double = -70.6506
 )

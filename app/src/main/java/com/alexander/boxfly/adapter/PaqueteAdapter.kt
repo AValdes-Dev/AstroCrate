@@ -9,6 +9,7 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.alexander.boxfly.ConversorMoneda
 import com.alexander.boxfly.R
 import com.alexander.boxfly.models.PaqueteModel
 import com.bumptech.glide.Glide
@@ -20,12 +21,16 @@ class PaqueteAdapter(
     private val onBorrar: (Int) -> Unit           // Función para borrar
 ) : RecyclerView.Adapter<PaqueteAdapter.ViewHolder>() {
 
+    // Moneda global para convertir los valores de toda la lista
+    var monedaGlobal: String = "CLP ($)"
+
     // Referencias a los objetos visuales del item_paquete
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val imgFoto: ImageView = view.findViewById(R.id.imgFotoPaqueteItem)
         val txtTipo: TextView = view.findViewById(R.id.lblTipoPaqueteItem)
         val txtContenido: TextView = view.findViewById(R.id.lblContenidoItem)
         val txtPeso: TextView = view.findViewById(R.id.lblPesoItem)
+        val txtValor: TextView = view.findViewById(R.id.lblValorDeclaradoItem)
         val txtFragil: TextView = view.findViewById(R.id.lblFragilItem)
         val btnVerFotoDrive: Button = view.findViewById(R.id.btnVerFotoDrive)
         val btnEditar: Button = view.findViewById(R.id.btnEditarPaquete)
@@ -44,6 +49,16 @@ class PaqueteAdapter(
         holder.txtTipo.text = "Tipo: ${item.tipo}"
         holder.txtContenido.text = "Cont: ${item.contenido}"
         holder.txtPeso.text = "Peso: ${item.peso} Kg"
+        
+        // Mostrar valor declarado formateado/convertido según la moneda global seleccionada
+        if (item.valorDeclarado > 0) {
+            holder.txtValor.visibility = View.VISIBLE
+            ConversorMoneda.obtenerConversionEnVivo(item.valorDeclarado, monedaGlobal) { valorConvertido ->
+                holder.txtValor.text = "Valor: $valorConvertido"
+            }
+        } else {
+            holder.txtValor.visibility = View.GONE
+        }
         
         // Mostrar alerta roja solo si es un objeto frágil
         holder.txtFragil.visibility = if (item.esFragil) View.VISIBLE else View.GONE

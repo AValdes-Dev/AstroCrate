@@ -49,6 +49,20 @@ class GestorEmpaqueteria : AppCompatActivity() {
         )
         rv.adapter = adapter
 
+        // Configurar Selector Global de Monedas
+        val spnMonedaGlobal = findViewById<android.widget.Spinner>(R.id.spnMonedaGlobal)
+        val adapterMoneda = android.widget.ArrayAdapter(this, R.layout.spinner_item, ConversorMoneda.opcionesMoneda)
+        adapterMoneda.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spnMonedaGlobal.adapter = adapterMoneda
+
+        spnMonedaGlobal.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: android.widget.AdapterView<*>?, view: android.view.View?, position: Int, id: Long) {
+                adapter.monedaGlobal = ConversorMoneda.opcionesMoneda[position]
+                adapter.notifyDataSetChanged()
+            }
+            override fun onNothingSelected(parent: android.widget.AdapterView<*>?) {}
+        }
+
         // Botón para agregar un nuevo paquete
         findViewById<Button>(R.id.btnAgregarPaquete).setOnClickListener {
             startActivity(Intent(this, MantenedorPaquete::class.java))

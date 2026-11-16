@@ -1,144 +1,175 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#3F51B5"
-    android:padding="24dp"
+    android:fillViewport="true"
     tools:context=".MantenedorPaquete">
 
-    <TextView
-        android:id="@+id/lblTituloPaquete"
-        android:layout_width="wrap_content"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/main"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="Registro de Paquete"
-        android:textColor="#FFFFFF"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:padding="24dp">
 
-    <Spinner
-        android:id="@+id/spnTipoPaquete"
-        android:layout_width="0dp"
-        android:layout_height="48dp"
-        android:layout_marginTop="32dp"
-        android:backgroundTint="#FFFFFF"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/lblTituloPaquete" />
+        <TextView
+            android:id="@+id/lblTituloPaquete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Registro de Paquete"
+            android:textColor="#FFFFFF"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <EditText
-        android:id="@+id/txtContenido"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:backgroundTint="#FFFFFF"
-        android:hint="Descripción del contenido"
-        android:textColor="#FFFFFF"
-        android:textColorHint="#CCCCCC"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/spnTipoPaquete" />
+        <Spinner
+            android:id="@+id/spnTipoPaquete"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="20dp"
+            android:backgroundTint="#FFFFFF"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/lblTituloPaquete" />
 
-    <EditText
-        android:id="@+id/txtPeso"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:backgroundTint="#FFFFFF"
-        android:hint="Peso en Kg"
-        android:inputType="numberDecimal"
-        android:textColor="#FFFFFF"
-        android:textColorHint="#CCCCCC"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtContenido" />
+        <EditText
+            android:id="@+id/txtContenido"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:backgroundTint="#FFFFFF"
+            android:hint="Descripción del contenido"
+            android:minHeight="48dp"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#CCCCCC"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/spnTipoPaquete" />
 
-    <EditText
-        android:id="@+id/txtValorDeclarado"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:backgroundTint="#FFFFFF"
-        android:hint="Valor Declarado ($)"
-        android:inputType="numberDecimal"
-        android:textColor="#FFFFFF"
-        android:textColorHint="#CCCCCC"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtPeso" />
+        <EditText
+            android:id="@+id/txtPeso"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:backgroundTint="#FFFFFF"
+            android:hint="Peso en Kg"
+            android:inputType="numberDecimal"
+            android:minHeight="48dp"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#CCCCCC"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/txtContenido" />
 
-    <androidx.appcompat.widget.SwitchCompat
-        android:id="@+id/swFragil"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="¿Es Frágil? "
-        android:textColor="#FFFFFF"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtValorDeclarado" />
+        <EditText
+            android:id="@+id/txtValorDeclarado"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:backgroundTint="#FFFFFF"
+            android:hint="Valor Declarado"
+            android:inputType="numberDecimal"
+            android:minHeight="48dp"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#CCCCCC"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/txtPeso" />
 
-    <Button
-        android:id="@+id/btnFotoPaquete"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:backgroundTint="#C5CAE9"
-        android:text="Adjuntar Foto"
-        android:textColor="#000000"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/swFragil" />
+        <TextView
+            android:id="@+id/lblMonedaPaquete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Moneda del Valor:"
+            android:textColor="#FFFFFF"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/txtValorDeclarado" />
 
-    <TextView
-        android:id="@+id/lblFotoPaquete"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="12dp"
-        android:text="Sin foto"
-        android:textColor="#FFFFFF"
-        app:layout_constraintBottom_toBottomOf="@+id/btnFotoPaquete"
-        app:layout_constraintEnd_toStartOf="@+id/imgPreviewPaquete"
-        app:layout_constraintStart_toEndOf="@+id/btnFotoPaquete"
-        app:layout_constraintTop_toTopOf="@+id/btnFotoPaquete" />
+        <Spinner
+            android:id="@+id/spnMonedaPaquete"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="4dp"
+            android:backgroundTint="#FFFFFF"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/lblMonedaPaquete" />
 
-    <ImageView
-        android:id="@+id/imgPreviewPaquete"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginStart="8dp"
-        android:scaleType="centerCrop"
-        android:visibility="gone"
-        tools:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="@+id/btnFotoPaquete"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/btnFotoPaquete" />
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/swFragil"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="¿Es Frágil? "
+            android:textColor="#FFFFFF"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/spnMonedaPaquete" />
 
-    <Button
-        android:id="@+id/btnGuardarPaquete"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:backgroundTint="#FF5722"
-        android:text="Registrar Paquete"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnFotoPaquete" />
+        <Button
+            android:id="@+id/btnFotoPaquete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:backgroundTint="#C5CAE9"
+            android:text="Adjuntar Foto"
+            android:textColor="#000000"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/swFragil" />
 
-    <Button
-        android:id="@+id/btnCancelarPaquete"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:backgroundTint="#C5CAE9"
-        android:text="Cancelar"
-        android:textColor="#000000"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnGuardarPaquete" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <TextView
+            android:id="@+id/lblFotoPaquete"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:text="Sin foto"
+            android:textColor="#FFFFFF"
+            app:layout_constraintBottom_toBottomOf="@+id/btnFotoPaquete"
+            app:layout_constraintEnd_toStartOf="@+id/imgPreviewPaquete"
+            app:layout_constraintStart_toEndOf="@+id/btnFotoPaquete"
+            app:layout_constraintTop_toTopOf="@+id/btnFotoPaquete" />
+
+        <ImageView
+            android:id="@+id/imgPreviewPaquete"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="8dp"
+            android:scaleType="centerCrop"
+            android:visibility="gone"
+            tools:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="@+id/btnFotoPaquete"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/btnFotoPaquete" />
+
+        <Button
+            android:id="@+id/btnGuardarPaquete"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:backgroundTint="#FF5722"
+            android:text="Registrar Paquete"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btnFotoPaquete" />
+
+        <Button
+            android:id="@+id/btnCancelarPaquete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:backgroundTint="#C5CAE9"
+            android:text="Cancelar"
+            android:textColor="#000000"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btnGuardarPaquete" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

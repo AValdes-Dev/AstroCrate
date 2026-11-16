@@ -47,6 +47,20 @@ class GestorEnvios : AppCompatActivity() {
         )
         rv.adapter = adapter
 
+        // Configurar Selector Global de Monedas para Envíos
+        val spnMonedaGlobal = findViewById<android.widget.Spinner>(R.id.spnMonedaGlobalEnvio)
+        val adapterMoneda = android.widget.ArrayAdapter(this, R.layout.spinner_item, ConversorMoneda.opcionesMoneda)
+        adapterMoneda.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spnMonedaGlobal.adapter = adapterMoneda
+
+        spnMonedaGlobal.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: android.widget.AdapterView<*>?, view: android.view.View?, position: Int, id: Long) {
+                adapter.monedaGlobal = ConversorMoneda.opcionesMoneda[position]
+                adapter.notifyDataSetChanged()
+            }
+            override fun onNothingSelected(parent: android.widget.AdapterView<*>?) {}
+        }
+
         // Botón para crear un nuevo envío
         findViewById<Button>(R.id.btnAgregarEnvio).setOnClickListener {
             startActivity(Intent(this, MantenedorEnvio::class.java))

@@ -21,7 +21,9 @@ object NotificadorCorreo {
         paqueteTipo: String,
         estado: String,
         fechaEnvio: String,
-        esNuevo: Boolean
+        esNuevo: Boolean,
+        latitud: Double = -33.4372,
+        longitud: Double = -70.6506
     ) {
         db.collection("clientes")
             .whereEqualTo("nombre", clienteNombre)
@@ -56,6 +58,9 @@ object NotificadorCorreo {
                             "<li><b>Foto del paquete en Google Drive:</b> <a href=\"$fotoUrl\">Ver foto respaldada en Drive</a></li>"
                         } else ""
 
+                        val urlMapa = "https://www.google.com/maps/search/?api=1&query=$latitud,$longitud"
+                        val htmlMapa = "<li><b>Ubicación actual en Google Maps:</b> <a href=\"$urlMapa\">📍 Ver ubicación en Google Maps</a></li>"
+
                         val textoFoto = if (fotoUrl.isNotEmpty()) " - Foto Drive: $fotoUrl" else ""
 
                         // Escapar datos ingresados por el usuario antes de insertarlos en el HTML
@@ -67,12 +72,13 @@ object NotificadorCorreo {
                                 <li><b>Paquete:</b> ${TextUtils.htmlEncode(paqueteTipo)}</li>
                                 <li><b>Fecha de envío:</b> ${TextUtils.htmlEncode(fechaEnvio)}</li>
                                 <li><b>Estado:</b> ${TextUtils.htmlEncode(estado)}</li>
+                                $htmlMapa
                                 $htmlFoto
                             </ul>
                             <p>Gracias por confiar en AstroCrate.</p>
                         """.trimIndent()
 
-                        val texto = "Envío $codigoSeguimiento ($paqueteTipo) - Estado: $estado - Fecha: $fechaEnvio$textoFoto"
+                        val texto = "Envío $codigoSeguimiento ($paqueteTipo) - Estado: $estado - Mapa: $urlMapa$textoFoto"
 
                         val correo = hashMapOf(
                             "to" to email,

@@ -54,6 +54,7 @@ class MantenedorPaquete : AppCompatActivity() {
         firebaseAnalytics = FirebaseAnalytics.getInstance(this)
 
         val spnTipo = findViewById<Spinner>(R.id.spnTipoPaquete)
+        val spnMoneda = findViewById<Spinner>(R.id.spnMonedaPaquete)
         val txtCont = findViewById<EditText>(R.id.txtContenido)
         val txtPeso = findViewById<EditText>(R.id.txtPeso)
         val txtValor = findViewById<EditText>(R.id.txtValorDeclarado)
@@ -73,6 +74,10 @@ class MantenedorPaquete : AppCompatActivity() {
         adapterTipo.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spnTipo.adapter = adapterTipo
 
+        val adapterMoneda = ArrayAdapter(this, R.layout.spinner_item, ConversorMoneda.opcionesMoneda)
+        adapterMoneda.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spnMoneda.adapter = adapterMoneda
+
         val posicion = intent.getIntExtra("POSICION", -1)
 
         // Si venimos a editar, llenamos los campos con los valores actuales
@@ -80,6 +85,9 @@ class MantenedorPaquete : AppCompatActivity() {
             val p = DatosGlobales.listaPaquetes[posicion]
             val index = opcionesTipo.indexOf(p.tipo)
             if (index != -1) spnTipo.setSelection(index)
+
+            val idxMon = ConversorMoneda.opcionesMoneda.indexOf(p.moneda)
+            if (idxMon != -1) spnMoneda.setSelection(idxMon)
 
             txtCont.setText(p.contenido)
             txtPeso.setText(p.peso.toString())
@@ -103,6 +111,7 @@ class MantenedorPaquete : AppCompatActivity() {
             val cont = txtCont.text.toString().trim()
             val peso = txtPeso.text.toString().toDoubleOrNull() ?: 0.0
             val valor = txtValor.text.toString().toDoubleOrNull() ?: 0.0
+            val moneda = spnMoneda.selectedItem.toString()
 
             if (cont.isNotEmpty() && peso > 0) {
                 btnGuardar.isEnabled = false
@@ -112,7 +121,8 @@ class MantenedorPaquete : AppCompatActivity() {
                     "contenido" to cont,
                     "peso" to peso,
                     "esFragil" to swFragil.isChecked,
-                    "valorDeclarado" to valor
+                    "valorDeclarado" to valor,
+                    "moneda" to moneda
                 )
 
                 // El ID se conoce antes de guardar para usarlo en el nombre de la foto en Drive
