@@ -191,7 +191,8 @@ class MantenedorEnvio : AppCompatActivity() {
                                     }
                                     firebaseAnalytics.logEvent("registro_creado", params)
 
-                                    finish()
+                                    // Ofrecer aviso inmediato por SMS / WhatsApp y luego cerrar
+                                    NotificadorMensaje.ofrecerAviso(this, db, cli, seg, est, latFinal, lngFinal) { finish() }
                                 }
                                 .addOnFailureListener { e ->
                                     btnFinalizar.isEnabled = true
@@ -215,7 +216,12 @@ class MantenedorEnvio : AppCompatActivity() {
                                     }
                                     firebaseAnalytics.logEvent("registro_actualizado", params)
 
-                                    finish()
+                                    // Si cambió el estado, ofrecer aviso por SMS / WhatsApp antes de cerrar
+                                    if (envioExistente.estado != est) {
+                                        NotificadorMensaje.ofrecerAviso(this, db, cli, seg, est, latFinal, lngFinal) { finish() }
+                                    } else {
+                                        finish()
+                                    }
                                 }
                                 .addOnFailureListener { e ->
                                     btnFinalizar.isEnabled = true

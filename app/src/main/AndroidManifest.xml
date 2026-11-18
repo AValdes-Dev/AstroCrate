@@ -15,6 +15,22 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.BoxFly">
 
+        <!-- Comparte las etiquetas QR generadas (cache/etiquetas) con otras apps -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+        <!-- Descarga anticipada de los módulos de ML Kit (OCR, escáner de documentos y de códigos) -->
+        <meta-data
+            android:name="com.google.mlkit.vision.DEPENDENCIES"
+            android:value="ocr,barcode_ui,document_ui" />
+
         <service
             android:name=".MyFirebaseMessagingService"
             android:exported="false">

@@ -13,6 +13,14 @@ service cloud.firestore {
       allow read, write: if request.auth != null;
     }
 
+    // Registro de avisos por SMS / WhatsApp (solo se crean; no se editan ni borran desde la app)
+    match /mensajes/{id} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null
+                    && request.resource.data.keys().hasOnly(['canal', 'telefono', 'texto', 'codigoSeguimiento', 'creado'])
+                    && request.resource.data.canal in ['sms', 'whatsapp'];
+    }
+
     // Registro de correos enviados vía Apps Script.
     // La app crea el correo y luego solo puede anotar el resultado de entrega ("delivery").
     match /mail/{id} {

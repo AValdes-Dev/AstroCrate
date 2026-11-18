@@ -65,4 +65,10 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-messaging")
     implementation("com.github.bumptech.glide:glide:4.16.0")
+    // Etiquetas QR: generación (ZXing) y lectura con el escáner de Google (sin permiso de cámara)
+    implementation("com.google.zxing:core:3.5.3")
+    implementation("com.google.android.gms:play-services-code-scanner:16.1.0")
+    // Escaneo inteligente de etiquetas: escáner de documentos + OCR en el teléfono (ML Kit)
+    implementation("com.google.android.gms:play-services-mlkit-document-scanner:16.0.0")
+    implementation("com.google.android.gms:play-services-mlkit-text-recognition:19.0.1")
 }

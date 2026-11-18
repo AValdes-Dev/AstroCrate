@@ -74,3 +74,21 @@ solo permite crear correos y anotar su resultado. Desplegar (gratis en Spark):
 El `TOKEN` va dentro del APK: evita que cualquiera use tu script, pero alguien que descompile la app
 podría obtenerlo. Suficiente para un proyecto académico; para producción usar Cloud Functions con
 Firebase Auth (requiere Blaze).
+
+---
+
+# Mensajería e innovaciones (sin costo, sin Blaze)
+
+| Función | Cómo funciona | Dónde queda registro |
+|---|---|---|
+| **Aviso por SMS / WhatsApp** | Al crear un envío o cambiar su estado, la app ofrece avisar al cliente. Abre la app de SMS o WhatsApp con el mensaje listo (estado + enlace a Google Maps). También hay un botón "💬 Avisar" en cada envío. | `mensajes/{id}` con `canal`, `telefono`, `texto`, `codigoSeguimiento`, `creado` |
+| **Etiqueta QR del envío** | Botón "🔳 Etiqueta QR" en cada envío: genera el QR en el teléfono (ZXing) y permite compartirlo/imprimirlo. "📷 Escanear etiqueta QR" en Gestión de Envíos lo lee con el escáner de Google y abre el envío. | Evento Analytics `etiqueta_qr_escaneada` |
+| **Escaneo inteligente de etiquetas (IA en el teléfono)** | En el formulario de cliente, "📷 Escanear etiqueta o documento" usa el escáner de documentos de Google y OCR de ML Kit para autocompletar nombre, RUT, dirección, comuna, teléfono y correo. Solo rellena campos vacíos. | Evento Analytics `etiqueta_escaneada` |
+
+Notas:
+- No se usa el permiso `SEND_SMS`: Google Play lo rechaza en apps que no son de mensajería. El usuario confirma el envío en su app de SMS/WhatsApp.
+- El escáner QR y el de documentos son de Google Play Services: **no piden permiso de cámara** y funcionan sin internet (la primera vez descargan el módulo).
+- Teléfonos chilenos se normalizan a `+569XXXXXXXX` (acepta `912345678`, `+56 9 1234 5678`, etc.).
+- Publicar las reglas nuevas de `firestore.rules` (colección `mensajes`).
+
+Archivos: `NotificadorMensaje.kt`, `EtiquetaQR.kt`, `LectorEtiqueta.kt`, pruebas en `app/src/test/.../InnovacionesTest.kt`.

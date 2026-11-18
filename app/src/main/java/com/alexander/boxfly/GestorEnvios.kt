@@ -43,6 +43,16 @@ class GestorEnvios : AppCompatActivity() {
             { posicion ->
                 // Diálogo de confirmación antes de eliminar
                 confirmarEliminacion(posicion)
+            },
+            { posicion ->
+                // Etiqueta QR del envío para pegar en el paquete
+                DatosGlobales.listaEnvios.getOrNull(posicion)?.let { EtiquetaQR.mostrar(this, it) }
+            },
+            { posicion ->
+                // Aviso manual al cliente por SMS o WhatsApp
+                DatosGlobales.listaEnvios.getOrNull(posicion)?.let { e ->
+                    NotificadorMensaje.ofrecerAviso(this, db, e.clienteNombre, e.codigoSeguimiento, e.estado, e.latitud, e.longitud)
+                }
             }
         )
         rv.adapter = adapter
@@ -64,6 +74,11 @@ class GestorEnvios : AppCompatActivity() {
         // Botón para crear un nuevo envío
         findViewById<Button>(R.id.btnAgregarEnvio).setOnClickListener {
             startActivity(Intent(this, MantenedorEnvio::class.java))
+        }
+
+        // Escanear la etiqueta QR de un paquete para abrir su envío directamente
+        findViewById<Button>(R.id.btnEscanearQr).setOnClickListener {
+            EtiquetaQR.escanear(this) { codigo -> abrirEnvioPorCodigo(codigo) }
         }
 
         findViewById<Button>(R.id.btnVolver).setOnClickListener {
@@ -101,6 +116,31 @@ class GestorEnvios : AppCompatActivity() {
             }
             .addOnFailureListener { e ->
                 Toast.makeText(this, "Error al cargar envíos: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    // Busca el envío por código en Firestore (no depende de que la lista esté cargada)
+    private fun abrirEnvioPorCodigo(codigo: String) {
+        db.collection("envios").whereEqualTo("codigoSeguimiento", codigo).limit(1).get()
+            .addOnSuccessListener { resultado ->
+                val doc = resultado.documents.firstOrNull()
+                if (doc == null) {
+                    Toast.makeText(this, "No existe un envío con código $codigo", Toast.LENGTH_LONG).show()
+                    return@addOnSuccessListener
+                }
+                var posicion = DatosGlobales.listaEnvios.indexOfFirst { it.id == doc.id }
+                if (posicion == -1) {
+                    val envio = doc.toObject(EnvioModel::class.java) ?: return@addOnSuccessListener
+                    envio.id = doc.id
+                    DatosGlobales.listaEnvios.add(envio)
+                    adapter.notifyItemInserted(DatosGlobales.listaEnvios.lastIndex)
+                    posicion = DatosGlobales.listaEnvios.lastIndex
+                }
+                firebaseAnalytics.logEvent("etiqueta_qr_escaneada", Bundle())
+                startActivity(Intent(this, MantenedorEnvio::class.java).putExtra("POSICION", posicion))
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "No se pudo buscar el envío. Revisa tu conexión.", Toast.LENGTH_LONG).show()
             }
     }
 

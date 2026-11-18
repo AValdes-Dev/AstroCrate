@@ -57,10 +57,22 @@
         android:layout_marginTop="6dp"
         android:layout_marginBottom="12dp"
         android:background="#FFFFFF"
-        app:layout_constraintBottom_toTopOf="@+id/btnAgregarEnvio"
+        app:layout_constraintBottom_toTopOf="@+id/btnEscanearQr"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/layoutMonedaGlobalEnvios" />
+
+    <Button
+        android:id="@+id/btnEscanearQr"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:backgroundTint="#FFC107"
+        android:text="📷 Escanear etiqueta QR"
+        android:textColor="#000000"
+        app:layout_constraintBottom_toTopOf="@+id/btnAgregarEnvio"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/btnAgregarEnvio"

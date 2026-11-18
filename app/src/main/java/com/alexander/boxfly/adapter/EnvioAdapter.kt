@@ -16,7 +16,9 @@ import com.alexander.boxfly.models.EnvioModel
 class EnvioAdapter(
     private val lista: MutableList<EnvioModel>, // Envíos generados
     private val onEditar: (Int) -> Unit,        // Modificar guía
-    private val onBorrar: (Int) -> Unit         // Eliminar registro
+    private val onBorrar: (Int) -> Unit,        // Eliminar registro
+    private val onEtiqueta: (Int) -> Unit,      // Mostrar etiqueta QR
+    private val onAvisar: (Int) -> Unit         // Avisar al cliente por SMS/WhatsApp
 ) : RecyclerView.Adapter<EnvioAdapter.ViewHolder>() {
 
     // Moneda global para convertir los costos de toda la lista
@@ -33,6 +35,8 @@ class EnvioAdapter(
         val btnVerMapa: Button = view.findViewById(R.id.btnVerMapaEnvio)
         val btnEditar: Button = view.findViewById(R.id.btnEditarEnvio)
         val btnBorrar: Button = view.findViewById(R.id.btnBorrarEnvio)
+        val btnEtiqueta: Button = view.findViewById(R.id.btnEtiquetaQr)
+        val btnAvisar: Button = view.findViewById(R.id.btnAvisarCliente)
     }
 
     // Busca y prepara el molde visual
@@ -75,6 +79,8 @@ class EnvioAdapter(
         // Acciones de gestión para cada fila
         holder.btnEditar.setOnClickListener { onEditar(position) }
         holder.btnBorrar.setOnClickListener { onBorrar(position) }
+        holder.btnEtiqueta.setOnClickListener { onEtiqueta(holder.bindingAdapterPosition) }
+        holder.btnAvisar.setOnClickListener { onAvisar(holder.bindingAdapterPosition) }
     }
 
     // Total de envíos en la lista

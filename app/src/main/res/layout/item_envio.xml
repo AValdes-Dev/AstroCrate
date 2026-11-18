@@ -87,6 +87,36 @@
                 android:text="📍 Ver en Google Maps"
                 android:textColor="#FFFFFF"
                 android:textSize="11sp" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btnEtiquetaQr"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:layout_marginEnd="6dp"
+                    android:backgroundTint="#607D8B"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:text="🔳 Etiqueta QR"
+                    android:textColor="#FFFFFF"
+                    android:textSize="11sp" />
+
+                <Button
+                    android:id="@+id/btnAvisarCliente"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:backgroundTint="#25D366"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:text="💬 Avisar"
+                    android:textColor="#FFFFFF"
+                    android:textSize="11sp" />
+            </LinearLayout>
         </LinearLayout>
 
         <LinearLayout
