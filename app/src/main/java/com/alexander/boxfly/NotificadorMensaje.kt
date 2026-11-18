@@ -26,7 +26,8 @@ object NotificadorMensaje {
         val primerNombre = clienteNombre.trim().split(" ").firstOrNull().orEmpty()
         val urlMapa = "https://www.google.com/maps/search/?api=1&query=$latitud,$longitud"
         return "Hola $primerNombre, tu envío AstroCrate $codigoSeguimiento está \"$estado\". " +
-            "Ubicación: $urlMapa"
+            "Ubicación: $urlMapa. " +
+            "Cualquier cambio o error avise a este mismo contacto."
     }
 
     // Normaliza un teléfono chileno a formato internacional sin "+" (ej. 56912345678)
