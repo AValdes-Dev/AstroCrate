@@ -47,7 +47,8 @@
             android:layout_height="40dp"
             android:layout_weight="1"
             android:backgroundTint="#FFFFFF"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark" />
+            android:theme="@style/ThemeOverlay.AppCompat.Dark"
+            tools:ignore="TouchTargetSizeCheck" />
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView

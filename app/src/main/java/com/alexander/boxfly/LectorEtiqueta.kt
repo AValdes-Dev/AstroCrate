@@ -65,11 +65,21 @@ object LectorEtiqueta {
             }
         }
 
-        // Nombre sin etiqueta: primera línea con 2 a 4 palabras, solo letras
+        // PALABRAS RESERVADAS A IGNORAR EN CARNETS Y DOCUMENTOS
+        val encabezadosIgnorados = listOf(
+            "REPUBLICA", "CHILE", "CEDULA", "IDENTIDAD", "NOMBRES", "APELLIDOS",
+            "NACIONALIDAD", "SEXO", "FIRMA", "REGISTRO", "CIVIL", "FECHA", "DOCUMENTO"
+        )
+
+        // Nombre sin etiqueta: primera línea con 2 a 4 palabras, solo letras y descartando encabezados
         if (nombre == null) {
             nombre = lineas.firstOrNull { linea ->
+                val lineaUpper = linea.uppercase()
                 val palabras = linea.split(Regex("\\s+"))
-                palabras.size in 2..4 && linea.all { it.isLetter() || it == ' ' || it == '\'' } &&
+                val esEncabezado = encabezadosIgnorados.any { enc -> lineaUpper.contains(enc) }
+                
+                !esEncabezado && palabras.size in 2..4 &&
+                    linea.all { it.isLetter() || it == ' ' || it == '\'' || it == 'Ñ' || it == 'ñ' } &&
                     linea != comuna && palabras.all { it.first().isUpperCase() }
             }
         }

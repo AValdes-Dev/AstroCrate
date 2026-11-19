@@ -27,30 +27,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/btnEscanearEtiqueta"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:backgroundTint="#FFC107"
-        android:text="📷 Escanear etiqueta o documento"
-        android:textColor="#000000"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/lblTituloCliente" />
-
     <EditText
         android:id="@+id/txtNombreCliente"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="20dp"
         android:backgroundTint="#FFFFFF"
         android:hint="Nombre Completo"
         android:textColor="#FFFFFF"
         android:textColorHint="#CCCCCC"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnEscanearEtiqueta" />
+        app:layout_constraintTop_toBottomOf="@+id/lblTituloCliente" />
 
     <EditText
         android:id="@+id/txtRutCliente"
