@@ -36,7 +36,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="💱 Ver precios en: "
+            android:text="Ver precios en: "
             android:textColor="#FFFFFF"
             android:textSize="14sp"
             android:textStyle="bold" />
