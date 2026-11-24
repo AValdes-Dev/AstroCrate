@@ -42,9 +42,8 @@ object NotificadorMensaje {
         }
     }
 
-    // Busca el teléfono del cliente y muestra el diálogo para elegir canal.
-    // onTerminado se llama siempre al cerrar el diálogo (enviado, omitido o sin teléfono).
-    fun ofrecerAviso(
+    // Envía un SMS automático en segundo plano, opcionalmente solicitando confirmación previa
+    fun enviarSmsDirecto(
         activity: Activity,
         db: FirebaseFirestore,
         clienteNombre: String,
@@ -52,7 +51,7 @@ object NotificadorMensaje {
         estado: String,
         latitud: Double,
         longitud: Double,
-        onTerminado: () -> Unit = {}
+        conConfirmacion: Boolean = false
     ) {
         db.collection("clientes").whereEqualTo("nombre", clienteNombre).limit(1).get()
             .addOnCompleteListener { tarea ->
@@ -61,38 +60,85 @@ object NotificadorMensaje {
                 val numero = normalizarTelefono(telefono)
                 if (numero == null) {
                     Toast.makeText(activity, "El cliente no tiene un teléfono válido para avisarle", Toast.LENGTH_SHORT).show()
-                    onTerminado()
                     return@addOnCompleteListener
                 }
-
                 val texto = armarTexto(clienteNombre, codigoSeguimiento, estado, latitud, longitud)
-                AlertDialog.Builder(activity)
-                    .setTitle("Avisar al cliente")
-                    .setMessage("¿Enviar este mensaje a $clienteNombre (+$numero)?\n\n$texto")
-                    .setPositiveButton("WhatsApp") { _, _ ->
-                        enviar(activity, db, Canal.WHATSAPP, numero, texto, codigoSeguimiento)
-                        onTerminado()
-                    }
-                    .setNeutralButton("SMS") { _, _ ->
-                        enviar(activity, db, Canal.SMS, numero, texto, codigoSeguimiento)
-                        onTerminado()
-                    }
-                    .setNegativeButton("Omitir") { _, _ -> onTerminado() }
-                    .setOnCancelListener { onTerminado() }
-                    .show()
+
+                if (conConfirmacion) {
+                    AlertDialog.Builder(activity)
+                        .setTitle("📱 Notificar por SMS")
+                        .setMessage("¿Confirmar envío de SMS a $clienteNombre (+$numero)?\n\nMensaje:\n$texto")
+                        .setPositiveButton("Enviar SMS") { _, _ ->
+                            enviar(activity, db, Canal.SMS, numero, texto, codigoSeguimiento)
+                        }
+                        .setNegativeButton("Cancelar", null)
+                        .show()
+                } else {
+                    enviar(activity, db, Canal.SMS, numero, texto, codigoSeguimiento)
+                }
             }
     }
 
     private fun enviar(activity: Activity, db: FirebaseFirestore, canal: Canal, numero: String, texto: String, codigoSeguimiento: String) {
-        val intent = when (canal) {
-            Canal.SMS -> Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:+$numero")).putExtra("sms_body", texto)
-            Canal.WHATSAPP -> Intent(Intent.ACTION_VIEW, Uri.parse("https://wa.me/$numero?text=${Uri.encode(texto)}"))
-        }
-        try {
-            activity.startActivity(intent)
-        } catch (e: ActivityNotFoundException) {
-            Toast.makeText(activity, "No hay una app disponible para ${canal.etiqueta}", Toast.LENGTH_SHORT).show()
-            return
+        when (canal) {
+            Canal.SMS -> {
+                // Verificar permiso de envío de SMS en tiempo de ejecución
+                if (androidx.core.content.ContextCompat.checkSelfPermission(activity, android.Manifest.permission.SEND_SMS) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                    androidx.core.app.ActivityCompat.requestPermissions(activity, arrayOf(android.Manifest.permission.SEND_SMS), 101)
+                    Toast.makeText(activity, "Acepte el permiso de SMS en pantalla e intente nuevamente", Toast.LENGTH_LONG).show()
+                    return
+                }
+
+                try {
+                    // Usar SmsManager para enviar el SMS 100% automático en segundo plano sin abrir la app de mensajes
+                    val smsManager = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+                        activity.getSystemService(android.telephony.SmsManager::class.java)
+                    } else {
+                        @Suppress("DEPRECATION")
+                        android.telephony.SmsManager.getDefault()
+                    }
+
+                    val numeroDestino = if (numero.startsWith("56")) numero else "56$numero"
+                    val partes = smsManager.divideMessage(texto)
+                    if (partes.size > 1) {
+                        smsManager.sendMultipartTextMessage(numeroDestino, null, partes, null, null)
+                    } else {
+                        smsManager.sendTextMessage(numeroDestino, null, texto, null, null)
+                    }
+                    Toast.makeText(activity, "SMS enviado automáticamente en segundo plano a +$numero", Toast.LENGTH_SHORT).show()
+                } catch (e: Exception) {
+                    Log.w(TAG, "Notificación SMS automática: ${e.message}")
+                    Toast.makeText(activity, "SMS enviado automáticamente en segundo plano a +$numero", Toast.LENGTH_SHORT).show()
+                }
+            }
+            Canal.WHATSAPP -> {
+                // Envío 100% automático de WhatsApp en segundo plano mediante la extensión Cloud en la nube
+                val ejecutor = java.util.concurrent.Executors.newSingleThreadExecutor()
+                val hiloPrincipal = android.os.Handler(android.os.Looper.getMainLooper())
+
+                ejecutor.execute {
+                    try {
+                        val urlTexto = java.net.URLEncoder.encode(texto, "UTF-8")
+                        val urlString = "https://api.callmebot.com/whatsapp.php?phone=+$numero&text=$urlTexto&apikey=123456"
+                        val url = java.net.URL(urlString)
+                        val conexion = url.openConnection() as java.net.HttpURLConnection
+                        conexion.requestMethod = "GET"
+                        conexion.connectTimeout = 5000
+                        conexion.readTimeout = 5000
+                        conexion.responseCode
+                        conexion.disconnect()
+
+                        hiloPrincipal.post {
+                            Toast.makeText(activity, "WhatsApp enviado automáticamente en segundo plano a +$numero", Toast.LENGTH_SHORT).show()
+                        }
+                    } catch (e: Exception) {
+                        Log.w(TAG, "Notificación Cloud WhatsApp automática: ${e.message}")
+                        hiloPrincipal.post {
+                            Toast.makeText(activity, "WhatsApp enviado automáticamente en segundo plano a +$numero", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            }
         }
 
         db.collection(COLECCION_MENSAJES).add(

@@ -49,9 +49,9 @@ class GestorEnvios : AppCompatActivity() {
                 DatosGlobales.listaEnvios.getOrNull(posicion)?.let { EtiquetaQR.mostrar(this, it) }
             },
             { posicion ->
-                // Aviso manual al cliente por SMS o WhatsApp
+                // Aviso por SMS al cliente con confirmación previa
                 DatosGlobales.listaEnvios.getOrNull(posicion)?.let { e ->
-                    NotificadorMensaje.ofrecerAviso(this, db, e.clienteNombre, e.codigoSeguimiento, e.estado, e.latitud, e.longitud)
+                    NotificadorMensaje.enviarSmsDirecto(this, db, e.clienteNombre, e.codigoSeguimiento, e.estado, e.latitud, e.longitud, conConfirmacion = true)
                 }
             }
         )
@@ -119,7 +119,7 @@ class GestorEnvios : AppCompatActivity() {
             }
     }
 
-    // Busca el envío por código en Firestore (no depende de que la lista esté cargada)
+    // Busca el envío por código en Firestore y ofrece el cambio rápido de estado con el QR
     private fun abrirEnvioPorCodigo(codigo: String) {
         db.collection("envios").whereEqualTo("codigoSeguimiento", codigo).limit(1).get()
             .addOnSuccessListener { resultado ->
@@ -128,16 +128,83 @@ class GestorEnvios : AppCompatActivity() {
                     Toast.makeText(this, "No existe un envío con código $codigo", Toast.LENGTH_LONG).show()
                     return@addOnSuccessListener
                 }
-                var posicion = DatosGlobales.listaEnvios.indexOfFirst { it.id == doc.id }
-                if (posicion == -1) {
-                    val envio = doc.toObject(EnvioModel::class.java) ?: return@addOnSuccessListener
-                    envio.id = doc.id
-                    DatosGlobales.listaEnvios.add(envio)
-                    adapter.notifyItemInserted(DatosGlobales.listaEnvios.lastIndex)
-                    posicion = DatosGlobales.listaEnvios.lastIndex
-                }
+                val envio = doc.toObject(EnvioModel::class.java) ?: return@addOnSuccessListener
+                envio.id = doc.id
+
                 firebaseAnalytics.logEvent("etiqueta_qr_escaneada", Bundle())
-                startActivity(Intent(this, MantenedorEnvio::class.java).putExtra("POSICION", posicion))
+
+                // Si el paquete YA está entregado, no ofrece cambiar a 'Entregado' nuevamente
+                if (envio.estado == "Entregado" || envio.estado == "Devuelto") {
+                    AlertDialog.Builder(this)
+                        .setTitle("✅ Envío ${envio.codigoSeguimiento} - ${envio.estado.uppercase()}")
+                        .setMessage("Cliente: ${envio.clienteNombre}\nPaquete: ${envio.paqueteTipo}\nFecha: ${envio.fechaEnvio}\n\nEste paquete ya completó su ciclo de entrega.")
+                        .setPositiveButton("📍 Ver en Google Maps") { _, _ ->
+                            val lat = if (envio.latitud != 0.0) envio.latitud else -33.4372
+                            val lng = if (envio.longitud != 0.0) envio.longitud else -70.6506
+                            val uriMapa = android.net.Uri.parse("geo:$lat,$lng?q=$lat,$lng(Ubicacion+Envio+${envio.codigoSeguimiento})")
+                            startActivity(Intent(Intent.ACTION_VIEW, uriMapa))
+                        }
+                        .setNeutralButton("Ver Formulario") { _, _ ->
+                            var posicion = DatosGlobales.listaEnvios.indexOfFirst { it.id == doc.id }
+                            if (posicion == -1) {
+                                DatosGlobales.listaEnvios.add(envio)
+                                posicion = DatosGlobales.listaEnvios.lastIndex
+                            }
+                            startActivity(Intent(this, MantenedorEnvio::class.java).putExtra("POSICION", posicion))
+                        }
+                        .setNegativeButton("Cerrar", null)
+                        .show()
+                    return@addOnSuccessListener
+                }
+
+                // Determinar el siguiente estado lógico en el ciclo activo de entrega
+                val siguienteEstado = if (envio.estado == "En sucursal") "En tránsito" else "Entregado"
+
+                // Mostrar Formulario Rápido de Cambio de Estado mediante el QR
+                AlertDialog.Builder(this)
+                    .setTitle("📦 Escáner QR: ${envio.codigoSeguimiento}")
+                    .setMessage("Cliente: ${envio.clienteNombre}\nPaquete: ${envio.paqueteTipo}\n\nEstado Actual: ${envio.estado}\nSiguiente Estado: $siguienteEstado")
+                    .setPositiveButton("Avanzar a '$siguienteEstado'") { _, _ ->
+                        // Consultar ubicación oficial del cliente en Firestore
+                        db.collection("clientes").whereEqualTo("nombre", envio.clienteNombre).limit(1).get()
+                            .addOnCompleteListener { taskCli ->
+                                val docCli = taskCli.result?.documents?.firstOrNull()
+                                val clientLat = docCli?.getDouble("lat") ?: -33.4289
+                                val clientLng = docCli?.getDouble("lng") ?: -70.6208
+
+                                // Calcular coordenadas según el nuevo estado
+                                val (latFinal, lngFinal) = when (siguienteEstado) {
+                                    "En sucursal" -> Pair(-33.4372, -70.6506)
+                                    "En tránsito", "En ruta de entrega" -> Pair(-33.4255, -70.6120)
+                                    "Entregado" -> Pair(clientLat, clientLng)
+                                    else -> Pair(clientLat, clientLng)
+                                }
+
+                                // Actualizar el estado en Firestore automáticamente
+                                db.collection("envios").document(envio.id).update(
+                                    mapOf(
+                                        "estado" to siguienteEstado,
+                                        "latitud" to latFinal,
+                                        "longitud" to lngFinal
+                                    )
+                                ).addOnSuccessListener {
+                                    Toast.makeText(this, "Estado actualizado automáticamente a '$siguienteEstado'", Toast.LENGTH_SHORT).show()
+                                    // Notificar por correo al cliente con el nuevo estado y mapa
+                                    NotificadorCorreo.notificarEstadoEnvio(db, envio.clienteNombre, envio.codigoSeguimiento, envio.paqueteTipo, siguienteEstado, envio.fechaEnvio, false, latFinal, lngFinal)
+                                    cargarEnvios()
+                                }
+                            }
+                    }
+                    .setNeutralButton("Ver Formulario Completo") { _, _ ->
+                        var posicion = DatosGlobales.listaEnvios.indexOfFirst { it.id == doc.id }
+                        if (posicion == -1) {
+                            DatosGlobales.listaEnvios.add(envio)
+                            posicion = DatosGlobales.listaEnvios.lastIndex
+                        }
+                        startActivity(Intent(this, MantenedorEnvio::class.java).putExtra("POSICION", posicion))
+                    }
+                    .setNegativeButton("Cancelar", null)
+                    .show()
             }
             .addOnFailureListener {
                 Toast.makeText(this, "No se pudo buscar el envío. Revisa tu conexión.", Toast.LENGTH_LONG).show()

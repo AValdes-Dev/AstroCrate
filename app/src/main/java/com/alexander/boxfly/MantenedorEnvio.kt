@@ -182,8 +182,9 @@ class MantenedorEnvio : AppCompatActivity() {
                                 .addOnSuccessListener {
                                     Toast.makeText(this, "Envío Registrado en Firestore", Toast.LENGTH_SHORT).show()
 
-                                    // Aviso por correo al cliente con la ubicación en Google Maps
+                                    // Avisos automáticos en segundo plano (Correo + SMS)
                                     NotificadorCorreo.notificarEstadoEnvio(db, cli, seg, paq, est, fec, esNuevo = true, latitud = latFinal, longitud = lngFinal)
+                                    NotificadorMensaje.enviarSmsDirecto(this, db, cli, seg, est, latFinal, lngFinal)
 
                                     // Evento Analytics: registro_creado
                                     val params = Bundle().apply {
@@ -191,8 +192,7 @@ class MantenedorEnvio : AppCompatActivity() {
                                     }
                                     firebaseAnalytics.logEvent("registro_creado", params)
 
-                                    // Ofrecer aviso inmediato por SMS / WhatsApp y luego cerrar
-                                    NotificadorMensaje.ofrecerAviso(this, db, cli, seg, est, latFinal, lngFinal) { finish() }
+                                    finish()
                                 }
                                 .addOnFailureListener { e ->
                                     btnFinalizar.isEnabled = true
@@ -205,9 +205,10 @@ class MantenedorEnvio : AppCompatActivity() {
                                 .addOnSuccessListener {
                                     Toast.makeText(this, "Envío Actualizado", Toast.LENGTH_SHORT).show()
 
-                                    // Avisar por correo solo si cambió el estado
+                                    // Avisos automáticos en segundo plano (Correo + SMS) solo si cambió el estado
                                     if (envioExistente.estado != est) {
                                         NotificadorCorreo.notificarEstadoEnvio(db, cli, seg, paq, est, fec, esNuevo = false, latitud = latFinal, longitud = lngFinal)
+                                        NotificadorMensaje.enviarSmsDirecto(this, db, cli, seg, est, latFinal, lngFinal)
                                     }
 
                                     // Evento Analytics: registro_actualizado
@@ -216,12 +217,7 @@ class MantenedorEnvio : AppCompatActivity() {
                                     }
                                     firebaseAnalytics.logEvent("registro_actualizado", params)
 
-                                    // Si cambió el estado, ofrecer aviso por SMS / WhatsApp antes de cerrar
-                                    if (envioExistente.estado != est) {
-                                        NotificadorMensaje.ofrecerAviso(this, db, cli, seg, est, latFinal, lngFinal) { finish() }
-                                    } else {
-                                        finish()
-                                    }
+                                    finish()
                                 }
                                 .addOnFailureListener { e ->
                                     btnFinalizar.isEnabled = true
